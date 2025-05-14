@@ -3,14 +3,15 @@ import * as userService from '../services/user.service';
 import { handleAsyncError } from '../utils/user.util';
 
 export const registerUser = handleAsyncError(async (req: Request, res: Response) => {
-  const { username, email, password, firstName, lastName } = req.body;
+  const { username, email, password, firstName, lastName, role } = req.body;
   
   const user = await userService.createUser({
     username,
     email,
     password,
     firstName,
-    lastName
+    lastName,
+    role
   });
 
   res.status(201).json({

@@ -16,6 +16,6 @@ export const handleAsyncError = (fn: Function) => {
 };
 
 export const sanitizeUserResponse = (user: any) => {
-  const { password, ...userWithoutPassword } = user.toObject();
-  return userWithoutPassword;
+  const { password, role, ...userWithoutPassword } = user.toObject();
+  return { ...userWithoutPassword, role };
 };

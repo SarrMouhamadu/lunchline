@@ -1,12 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export type UserRole = 'admin' | 'teacher';
+
 export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
   firstName?: string;
   lastName?: string;
+  role: UserRole;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -37,6 +40,12 @@ const UserSchema: Schema = new Schema({
   lastName: { 
     type: String, 
     trim: true 
+  },
+  role: { 
+    type: String, 
+    required: true, 
+    enum: ['admin', 'teacher'], 
+    default: 'teacher' 
   }
 }, {
   timestamps: true

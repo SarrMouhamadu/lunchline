@@ -14,14 +14,14 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret') as { _id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret') as { _id: string, role: 'admin' | 'teacher' };
     const user = await User.findOne({ _id: decoded._id });
 
     if (!user) {
       throw new Error();
     }
 
-    req.user = user;
+    req.user = { ...user.toObject(), role: decoded.role };
     next();
   } catch (error) {
     res.status(401).json({ error: 'Please authenticate' });
@@ -29,7 +29,7 @@ export const authenticateUser = async (req: AuthRequest, res: Response, next: Ne
 };
 
 export const validateUserData = async (req: Request, res: Response, next: NextFunction) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
   try {
     // Check if username already exists
@@ -42,6 +42,11 @@ export const validateUserData = async (req: Request, res: Response, next: NextFu
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ error: 'Email already exists' });
+    }
+
+    // Validate role if provided
+    if (role && !['admin', 'teacher'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role. Must be admin or teacher' });
     }
 
     next();

@@ -4,7 +4,12 @@ import jwt from 'jsonwebtoken';
 import { sanitizeUserResponse } from '../utils/user.util';
 
 export const createUser = async (userData: Partial<IUser>) => {
-  const user = new User(userData);
+  // Ensure role is set, default to 'teacher' if not specified
+  const userDataWithRole = {
+    ...userData,
+    role: userData.role || 'teacher'
+  };
+  const user = new User(userDataWithRole);
   await user.save();
   return sanitizeUserResponse(user);
 };
@@ -29,7 +34,7 @@ export const loginUser = async (email: string, password: string) => {
       : String(user._id);
 
   const token = jwt.sign(
-    { _id: userId }, 
+    { _id: userId, role: user.role }, 
     process.env.JWT_SECRET || 'your_jwt_secret', 
     { expiresIn: '7d' }
   );
