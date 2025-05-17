@@ -1,0 +1,106 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold mb-6">Gestion des Commandes</h1>
+  
+  <!-- Filtres -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex-1">
+        <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Filtrer par statut</label>
+        <select 
+          id="status-filter" 
+          [(ngModel)]="selectedStatus" 
+          (change)="filterByStatus()" 
+          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+          <option value="">Tous les statuts</option>
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+      <div class="flex-none">
+        <button 
+          (click)="loadOrders()" 
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-6">
+          <span *ngIf="loading" class="mr-2">
+            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </span>
+          Actualiser
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tableau des commandes -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="min-w-full divide-y divide-gray-200">
+      <div class="bg-gray-50">
+        <div class="grid grid-cols-12 gap-2 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <div class="col-span-1">ID</div>
+          <div class="col-span-2">Utilisateur</div>
+          <div class="col-span-2">Menu</div>
+          <div class="col-span-1">Quantité</div>
+          <div class="col-span-1">Prix</div>
+          <div class="col-span-1">Statut</div>
+          <div class="col-span-2">Date</div>
+          <div class="col-span-2">Actions</div>
+        </div>
+      </div>
+      
+      <div class="bg-white divide-y divide-gray-200">
+        <div *ngIf="loading" class="px-6 py-4 text-center text-sm text-gray-500">
+          Chargement des commandes...
+        </div>
+        
+        <div *ngIf="!loading && filteredOrders.length === 0" class="px-6 py-4 text-center text-sm text-gray-500">
+          Aucune commande trouvée.
+        </div>
+        
+        <div *ngFor="let order of filteredOrders" class="grid grid-cols-12 gap-2 px-6 py-4 text-sm text-gray-500 items-center">
+          <div class="col-span-1 font-medium text-gray-900 truncate">{{ order.id.substring(0, 8) }}...</div>
+          <div class="col-span-2">{{ order.user.firstName }} {{ order.user.lastName }}</div>
+          <div class="col-span-2 truncate">{{ order.menu.name }}</div>
+          <div class="col-span-1">{{ order.quantity }}</div>
+          <div class="col-span-1">{{ order.totalPrice }}€</div>
+          <div class="col-span-1">
+            <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStatusClass(order.status)">
+              {{ order.status }}
+            </span>
+          </div>
+          <div class="col-span-2">{{ formatDate(order.createdAt) }}</div>
+          <div class="col-span-2 flex space-x-2">
+            <!-- Menu déroulant pour changer le statut -->
+            <select 
+              [disabled]="order.status === OrderStatus.CANCELLED || order.status === OrderStatus.COMPLETED"
+              (change)="updateStatus(order.id, $event.target.value)" 
+              class="block w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs">
+              <option [value]="order.status" selected disabled>Changer</option>
+              <option *ngFor="let status of statusOptions" [value]="status" [disabled]="status === order.status">{{ status }}</option>
+            </select>
+            
+            <!-- Bouton d'annulation -->
+            <button 
+              *ngIf="order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.COMPLETED"
+              (click)="cancelOrder(order.id)" 
+              class="text-red-600 hover:text-red-900" 
+              title="Annuler la commande">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <!-- Bouton de suppression -->
+            <button 
+              (click)="deleteOrder(order.id)" 
+              class="text-gray-600 hover:text-gray-900" 
+              title="Supprimer la commande">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

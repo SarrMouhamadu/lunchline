@@ -1,0 +1,37 @@
+/* Styles pour la page de gestion des commandes */
+
+/* Animation de chargement */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Styles pour les badges de statut */
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Hover effects pour les boutons d'action */
+button:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid-cols-12 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  
+  .col-span-1, .col-span-2 {
+    grid-column: span 3 / span 3;
+  }
+}
