@@ -69,6 +69,10 @@ export class HttpService {
     return this.http.post(`${this.apiUrl}/orders`, order);
   }
 
+  addToCart(item: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/cart`, item);
+  }
+
   // Users
   getUser(id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${id}`);

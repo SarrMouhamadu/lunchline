@@ -55,4 +55,49 @@ import { HttpService } from '../../shared/services/http.service';
     </div>
   `
 })
-export class MenuComponent { }
+export class MenuComponent implements OnInit {
+  menuItems: any[] = [];
+  showAddForm = false;
+  newItem: any = {
+    name: '',
+    description: '',
+    price: 0
+  };
+
+  constructor(private httpService: HttpService) {
+    this.loadMenuItems();
+  }
+
+  ngOnInit() {
+    this.newItem = {
+      name: '',
+      description: '',
+      price: 0
+    };
+  }
+
+  loadMenuItems() {
+    this.httpService.getMenus().subscribe(items => {
+      this.menuItems = items;
+    });
+  }
+
+  addMenuItem() {
+    if (this.newItem.name && this.newItem.description && this.newItem.price > 0) {
+      this.httpService.addMenu(this.newItem).subscribe(() => {
+        this.loadMenuItems();
+        this.newItem = {
+          name: '',
+          description: '',
+          price: 0
+        };
+      });
+    }
+  }
+
+  addToCart(item: any) {
+    this.httpService.addToCart(item).subscribe(() => {
+      // TODO: Afficher une notification
+    });
+  }
+}

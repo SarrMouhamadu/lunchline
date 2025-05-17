@@ -5,6 +5,7 @@ import connectDB from './configs/db.config';
 import userRoutes from './routes/user.route';
 import menuRoutes from './routes/menu.route';
 import orderRoutes from './routes/order.route';
+import cartRoutes from './routes/cart.route';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ connectDB();
 app.use('/api/users', userRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Global error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
