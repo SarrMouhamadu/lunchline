@@ -35,6 +35,21 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'admin',
+    children: [
+      {
+        path: 'menu-management',
+        loadComponent: () => import('./features/admin/menu-management/menu-management.component').then(m => m.MenuManagementComponent),
+        canActivate: [AdminGuard]
+      },
+      {
+        path: 'orders-management',
+        loadComponent: () => import('./features/admin/orders-management/orders-management.component').then(m => m.OrdersManagementComponent),
+        canActivate: [AdminGuard]
+      }
+    ]
+  },
+  {
     path: '**',
     redirectTo: ''
   }

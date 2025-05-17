@@ -96,8 +96,14 @@ export class MenuComponent implements OnInit {
   }
 
   addToCart(item: any) {
-    this.httpService.addToCart(item).subscribe(() => {
-      // TODO: Afficher une notification
-    });
+    this.httpService.addToCart(item).subscribe(
+      () => {
+        alert('Article ajouté au panier avec succès !');
+      },
+      (error) => {
+        console.error('Erreur lors de l\'ajout au panier:', error);
+        alert('Erreur lors de l\'ajout au panier. Veuillez réessayer.');
+      }
+    );
   }
 }

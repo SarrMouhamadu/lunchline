@@ -19,25 +19,30 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response) => {
     // Vérifier si le panier existe déjà pour cet utilisateur
     let cart = await Cart.findOne({ user: userId });
 
-    if (!cart) {
-      // Créer un nouveau panier
-      cart = new Cart({
+    // Récupérer le panier existant ou créer un nouveau
+    const existingCart = await Cart.findOne({ user: userId });
+    
+    if (!existingCart) {
+      const newCart = new Cart({
         user: userId,
-        items: [item]
+        items: []
       });
+      await newCart.save();
+      cart = newCart;
     } else {
-      // Ajouter l'item au panier existant
-      const existingItem = cart.items.find((i: any) => i.id === item.id);
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cart.items.push(item);
-      }
+      cart = existingCart;
     }
 
-    if (cart) {
-      await cart.save();
+    // Ajouter l'item au panier
+    const existingItem = cart.items.find((i: any) => i.id === item.id);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.items.push(item);
     }
+
+    // Sauvegarder le panier
+    await cart.save();
     res.status(201).json({ message: 'Article ajouté au panier', cart });
   } catch (error) {
     console.error('Erreur lors de l\'ajout au panier:', error);
